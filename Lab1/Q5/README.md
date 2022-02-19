@@ -48,7 +48,7 @@ F
 Size of char: 1
 Size of short: 2
 Size of short int: 2
-Size` of int: 4
+Size of int: 4
 Size of long int: 8
 Size of unsigned int: 4
 Size of void *: 8
