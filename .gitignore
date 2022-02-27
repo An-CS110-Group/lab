@@ -6,6 +6,7 @@
 
 # Supporting: C, C++, CMake
 
+.clang-format
 
 .idea
 
