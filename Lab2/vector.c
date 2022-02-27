@@ -142,6 +142,8 @@ void vector_set(vector_t *v, size_t loc, int value) {
 			newData[i] = v->data[i];
 		}
 		v->size *= SIZE_GROWTH_FACTOR;
+		free(v->data);
+		v->data = newData;
 	}
 
 	v->data[loc] = value;
