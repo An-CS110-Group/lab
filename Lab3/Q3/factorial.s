@@ -46,7 +46,7 @@ factorial:
 	li t1, 1
 	bge t0, t1, loop # Valid input
 	li t0, 0
-    ret
+    jr ra  
 loop:
 	mul t1, t1, t0
 	addi t0, t0, -1
