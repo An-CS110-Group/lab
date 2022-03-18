@@ -221,7 +221,7 @@ $RECYCLE.BIN/
 
 # Executables
 *.exe
-*.out
+
 *.app
 *.i*86
 *.x86_64
@@ -256,6 +256,7 @@ CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
+Testing
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
