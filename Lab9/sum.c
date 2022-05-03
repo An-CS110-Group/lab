@@ -35,7 +35,7 @@ int sum_unrolled( int n, int *a )
     }
 
     /* handle the small tail in a usual way */
-    for( int i = n/4*4; i < n; i++ )   
+    for( int i = n/4*4; i < n; i++ )
         sum += a[i];
 
     return sum;
@@ -43,15 +43,51 @@ int sum_unrolled( int n, int *a )
 
 int sum_vectorized( int n, int *a )
 {
-    /* VECTORIZE YOUR CODE HERE*/
+    int max = n / 4;
 
-    return 0;
+    __m128i sum = _mm_setzero_si128();
+    __m128i cur;
+    for (int i = 0; i < max; ++i) {
+        cur = _mm_loadu_si128((__m128i*)(a + 4 * i));
+        sum = _mm_add_epi32(sum, cur);
+    }
+
+    int temp[4];
+    _mm_storeu_si128((__m128i*) temp, sum);
+    int result = temp[0] + temp[1] + temp[2] + temp[3];
+    /* handle the small tail in a usual way */
+    for (int i = max * 4; i < n; ++i) {
+        result += a[i];
+    }
+    return result;
 }
+
 int sum_vectorized_unrolled( int n, int *a )
 {
-    /* UNROLL YOUR VECTORIZED CODE HERE*/
- 
-    return 0;
+    int max = n / 16;
+
+    __m128i sum = _mm_setzero_si128();
+    __m128i cur1, cur2, cur3, cur4;
+    for (int i = 0; i < max; ++i) {
+        cur1 = _mm_loadu_si128((__m128i*)(a + 16 * i + 0));
+        sum = _mm_add_epi32(sum, cur1);
+        cur2 = _mm_loadu_si128((__m128i*)(a + 16 * i + 4));
+        sum = _mm_add_epi32(sum, cur2);
+        cur3 = _mm_loadu_si128((__m128i*)(a + 16 * i + 8));
+        sum = _mm_add_epi32(sum, cur3);
+        cur4 = _mm_loadu_si128((__m128i*)(a + 16 * i + 12));
+        sum = _mm_add_epi32(sum, cur4);
+    }
+
+    int temp[4];
+    int result;
+    _mm_storeu_si128((__m128i*) temp, sum);
+    result = temp[0] + temp[1] + temp[2] + temp[3];
+    /* handle the small tail in a usual way */
+    for (int i = max * 16; i < n; ++i) {
+        result += a[i];
+    }
+    return result;
 }
 
 void benchmark( int n, int *a, int (*computeSum)(int,int*), char *name )
@@ -63,25 +99,25 @@ void benchmark( int n, int *a, int (*computeSum)(int,int*), char *name )
     unsigned long long cycles = RDTSC();
     sum += computeSum( n, a );
     cycles = RDTSC()-cycles;
-    
+
     double microseconds = cycles/CLOCK_RATE_GHZ*1e6;
-    
+
     /* report */
     printf( "%20s: ", name );
-    if( sum == 2*sum_naive(n,a) ) 
+    if( sum == 2*sum_naive(n,a) )
         printf( "%.2f microseconds\n", microseconds );
     else
         printf( "ERROR!\n" );
-} 
+}
 
 int main( int argc, char **argv )
 {
     const int n = 7777; /* small enough to fit in cache */
-    
+
     /* init the array */
     int a[n] __attribute__ ((aligned (32))); /* align the array in memory by 32 bytes (good for 256 bit intrinsics) */
     for( int i = 0; i < n; i++ ) a[i] = rand( );
-    
+
     /* benchmark series of codes */
     benchmark( n, a, sum_naive, "naive" );
     benchmark( n, a, sum_unrolled, "unrolled" );
